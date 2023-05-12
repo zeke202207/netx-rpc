@@ -9,9 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demo", "Demo", "{F13AB19E-A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwDemo", "Demo\FwDemo\FwDemo.csproj", "{F65AC2B8-6764-4996-9D67-A3D19818548D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NcDemo", "Demo\NcDemo\NcDemo.csproj", "{74F17A97-D16E-4919-BB48-C53C756E3544}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NcDemo", "Demo\NcDemo\NcDemo.csproj", "{74F17A97-D16E-4919-BB48-C53C756E3544}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Netx.RestfulRpc", "Netx.RestfulRpc\Netx.RestfulRpc.csproj", "{2087C3BA-E162-41A2-BD65-703A55224F63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netx.RestfulRpc", "Netx.RestfulRpc\Netx.RestfulRpc.csproj", "{2087C3BA-E162-41A2-BD65-703A55224F63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiDemo", "Demo\ApiDemo\ApiDemo.csproj", "{F9FB063E-F6C0-4941-B5A8-2A6D5F730CC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{2087C3BA-E162-41A2-BD65-703A55224F63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2087C3BA-E162-41A2-BD65-703A55224F63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2087C3BA-E162-41A2-BD65-703A55224F63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9FB063E-F6C0-4941-B5A8-2A6D5F730CC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9FB063E-F6C0-4941-B5A8-2A6D5F730CC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9FB063E-F6C0-4941-B5A8-2A6D5F730CC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9FB063E-F6C0-4941-B5A8-2A6D5F730CC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -42,6 +48,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{F65AC2B8-6764-4996-9D67-A3D19818548D} = {F13AB19E-A627-4B9B-9B48-D7470EE41A7B}
 		{74F17A97-D16E-4919-BB48-C53C756E3544} = {F13AB19E-A627-4B9B-9B48-D7470EE41A7B}
+		{F9FB063E-F6C0-4941-B5A8-2A6D5F730CC9} = {F13AB19E-A627-4B9B-9B48-D7470EE41A7B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FEC11254-45D1-4B87-862D-D20ACBF7AA3E}

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netx.RpcBase.Models;
+using System;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Linq;
@@ -7,10 +8,11 @@ using System.Reflection.Emit;
 
 namespace Netx.RpcBase
 {
-    internal class DnamicInterfaceProxy
+    public sealed class DnamicInterfaceProxy
     {
         private static Lazy<DnamicInterfaceProxy> instance = new Lazy<DnamicInterfaceProxy>(() => new DnamicInterfaceProxy());
-        private static readonly ConcurrentDictionary<Type, Type> Maps = new ConcurrentDictionary<Type, Type>();
+        private readonly ConcurrentDictionary<Type, Type> Maps = new ConcurrentDictionary<Type, Type>();
+        private static object objLock = new object();
 
         private DnamicInterfaceProxy() { }
 
@@ -32,8 +34,9 @@ namespace Netx.RpcBase
         /// <param name="handler"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public T Resolve<T>(InterceptorHandler handler)
+        internal T Resolve<T,U>(InterceptorHandler handler , RpcModel<U> model)
             where T : class
+            where U : ConfigModel
         {
             var interfaceType = typeof(T);
             if (interfaceType?.IsInterface != true)
@@ -41,10 +44,27 @@ namespace Netx.RpcBase
             Maps.TryGetValue(interfaceType, out var newType);
             if (null == newType)
             {
-                newType = CreateType(interfaceType);
-                Maps.TryAdd(interfaceType, newType);
+                lock (objLock)
+                {
+                    Maps.TryGetValue(interfaceType, out newType);
+                    if (null == newType)
+                    {
+                        newType = CreateType(interfaceType, model);
+                        Maps.TryAdd(interfaceType, newType);
+                    }
+                }
             }
-            return (T)Activator.CreateInstance(newType, handler);
+            return (T)Activator.CreateInstance(newType, handler, model);
+        }
+
+        /// <summary>
+        /// 获取代理Type
+        /// </summary>
+        /// <param name="key">字典key</param>
+        /// <returns></returns>
+        public Type GetCacheType(string key)
+        {
+            return Maps.FirstOrDefault(p=>p.Key.FullName == key).Value;
         }
 
         #region 
@@ -54,7 +74,8 @@ namespace Netx.RpcBase
         /// </summary>
         /// <param name="interfaceType"></param>
         /// <returns></returns>
-        private Type CreateType(Type interfaceType)
+        private Type CreateType<T>(Type interfaceType, RpcModel<T> model)
+            where T : ConfigModel
         {
             var assemblyName = new AssemblyName(nameof(DnamicInterfaceProxy));
             assemblyName.Version = new Version("1.0.0");
@@ -66,7 +87,8 @@ namespace Netx.RpcBase
             typeBuilder.AddInterfaceImplementation(interfaceType);
             //create field
             var fieldBuilder = typeBuilder.DefineField("_handler", typeof(InterceptorHandler), FieldAttributes.Private);
-            CreateConstructor(typeBuilder, fieldBuilder);
+            var modelFieldBuilder = typeBuilder.DefineField("_model", typeof(RpcModel<T>), FieldAttributes.Private);
+            CreateConstructor(typeBuilder, fieldBuilder , modelFieldBuilder);
             CreateMethods(interfaceType, typeBuilder, fieldBuilder);
             CreateProperties(interfaceType, typeBuilder, fieldBuilder);
             return typeBuilder.CreateTypeInfo().AsType();
@@ -77,13 +99,21 @@ namespace Netx.RpcBase
         /// </summary>
         /// <param name="typeBuilder"></param>
         /// <param name="fieldBuilder"></param>
-        private void CreateConstructor(TypeBuilder typeBuilder, FieldBuilder fieldBuilder)
+        private void CreateConstructor(TypeBuilder typeBuilder, FieldBuilder fieldBuilder, FieldBuilder modelFieldBuilder)
         {
-            var ctor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new Type[] { typeof(InterceptorHandler) });
+            var ctor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new Type[] { typeof(InterceptorHandler), typeof(object) });
             var il = ctor.GetILGenerator();
+            //拦截方法委托字段
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Stfld, fieldBuilder);
+            //定义model字段
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Stfld, modelFieldBuilder);
+            //生成model属性
+
+
             il.Emit(OpCodes.Ret);
         }
 

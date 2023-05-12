@@ -1,17 +1,20 @@
 ﻿using Netx.RpcBase;
+using Netx.RpcBase.Models;
 
 namespace Netx.RestfulRpc
 {
-    public class RestfulChannel : RpcChannel
+    public class RestfulChannel : RpcChannel<RestfulConfigModel>
     {
-        public RestfulChannel(OptionModel model) : base(model)
+        public RestfulChannel(RestfulRpcModel model) 
+            : base(model)
         {
 
         }
 
-        protected override bool ConfigChannel(OptionModel model)
+        protected override void Dispose(bool disposing)
         {
-            return true;
+            base.Dispose(disposing);
+            //释放httpclient
         }
     }
 }
