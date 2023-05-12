@@ -40,6 +40,17 @@ namespace Netx.RestfulRpc
         }
 
         /// <summary>
+        /// 获取注入的解析策略
+        /// </summary>
+        /// <param name="rType"></param>
+        /// <returns></returns>
+        public IStrategy ResolveStrategy(ResponseType rType)
+        {
+            var func = _serviceProvider.GetRequiredService<Func<ResponseType, IStrategy>>();
+            return func.Invoke(rType);
+        }
+
+        /// <summary>
         /// 初始化ServiceCollection
         /// 注入httpclient
         /// </summary>
@@ -52,6 +63,22 @@ namespace Netx.RestfulRpc
                     { 
                         UseDefaultCredentials = true,
                     });
+            //策略注入
+            services.AddSingleton<JsonResolveStragegy>();
+            services.AddSingleton(provider =>
+            {
+                Func<ResponseType, IStrategy> func = t =>
+                {
+                    switch(t)
+                    {
+                        case ResponseType.Json:
+                            return provider.GetService<JsonResolveStragegy>();
+                        default:
+                            throw new NotImplementedException("暂不支持其他解析方式");
+                    }
+                };
+                return func;
+            });
             return services;
         }
     }

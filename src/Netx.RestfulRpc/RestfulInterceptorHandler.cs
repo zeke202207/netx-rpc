@@ -23,26 +23,11 @@ namespace Netx.RestfulRpc
             var rpcModel = GetRpcModel(sender, interfaceImplType);
             if (null == rpcModel || null == type)
                 return null;
-            var config = rpcModel.Config?.Config();
-            var remoteCallResult = RemoteCall(config, interfaceImplType, sp[1], args);
-            if (IsFundamental(type))
-            {
-                if (type.IsEnum)
-                    return Enum.Parse(type, remoteCallResult.ToString());
-                return Convert.ChangeType(remoteCallResult, type);
-            }
-            else
-                return Newtonsoft.Json.JsonConvert.DeserializeObject(remoteCallResult?.ToString(), type);
-        }
-        
-        /// <summary>
-        /// 判断type是否为基础类型
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        private bool IsFundamental(Type type)
-        {
-            return type.IsPrimitive || type.IsEnum || type.Equals(typeof(string)) || type.Equals(typeof(DateTime));
+            var config = rpcModel.Config?.Config();            
+            var attribute = GetAttribute(interfaceImplType, sp[1]);
+            var remoteCallResult = RemoteCall(config, interfaceImplType, attribute, args);
+            var resolveStrategy = RestfulDI.Instance.ResolveStrategy(attribute.ResponseType);
+            return resolveStrategy.Resolve(type, remoteCallResult);
         }
 
         /// <summary>
@@ -80,13 +65,12 @@ namespace Netx.RestfulRpc
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        private object RemoteCall(RestfulConfigModel config, Type interfaceImplType, string methodName, params object[] args)
+        private string RemoteCall(RestfulConfigModel config, Type interfaceImplType, RestfulRpcAttribute attribute, params object[] args)
         {
-            var client = RestfulDI.Instance.HttpClient;
-            client.BaseAddress = new Uri(config.BaseUrl);
-            var attribute = GetAttribute(interfaceImplType, methodName);
             if(null == attribute)
                 return null;
+            var client = RestfulDI.Instance.HttpClient;
+            client.BaseAddress = new Uri(config.BaseUrl);
             return HttpCall(client, attribute.RequestType, attribute.ApiRoute, args);
         }
 
@@ -102,7 +86,7 @@ namespace Netx.RestfulRpc
             var intefaceType = interfaceImplType.GetInterfaces().FirstOrDefault();
             if(null == intefaceType)
                 return null;
-            var method = intefaceType.GetMethod(methodName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var method = intefaceType.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance);
             if (null == method)
                 return null;
             return method.GetCustomAttributes<RestfulRpcAttribute>().FirstOrDefault();

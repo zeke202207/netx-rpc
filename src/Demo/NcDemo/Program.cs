@@ -91,7 +91,7 @@ namespace NcDemo
 
     public interface IFoo
     {
-        [RestfulRpc(RequestType.Post, ResponseType.Json, "api/WeatherForecast/Foo")]
+        [RestfulRpc(RequestType.Post, ResponseType.Json, "api/WeatherForecast/Foo?{message}")]
         string Foo(string message);
 
 
