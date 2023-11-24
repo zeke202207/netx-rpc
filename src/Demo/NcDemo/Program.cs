@@ -48,7 +48,7 @@ namespace NcDemo
 
         private static void TestMedth1()
         {
-            using (var channle = RpcFactory.CreateRpcFactory<IFoo, RestfulConfigModel>(typeof(RestfulChannel), new RestfulRpcModel()
+            using (var channle = RpcFactory.CreateRpcFactory<IFoo, RestfulConfigModel,RestfulChannel>(new RestfulRpcModel()
             {
                 Id = "0",
                 Config = new ConfigHandler()
@@ -75,7 +75,7 @@ namespace NcDemo
             // };
             //string jsonStr = Newtonsoft.Json.JsonConvert.SerializeObject(list);
 
-            using (var channle = RpcFactory.CreateRpcFactory<IFoo, RestfulConfigModel>(typeof(RestfulChannel), new RestfulRpcModel()
+            using (var channle = RpcFactory.CreateRpcFactory<IFoo, RestfulConfigModel, RestfulChannel>(new RestfulRpcModel()
             {
                 Id = "0",
                 Config = new ConfigHandler()

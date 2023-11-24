@@ -20,14 +20,12 @@ namespace Netx.RpcBase
         /// <returns>通信管道实例对象</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public static RpcChannel<T> CreateRpcFactory<IService, T>(Type channelType, RpcModel<T> model)
+        public static RpcChannel<T> CreateRpcFactory<IService, T, TChannel>(RpcModel<T> model)
             where T : ConfigModel
             where IService : class
+            where TChannel : RpcChannel<T>
         {
-            if (null == channelType)
-                throw new ArgumentNullException($"{nameof(channelType)} can not be null");
-            if (channelType.IsAssignableFrom(typeof(RpcChannel<T>)))
-                throw new ArgumentException($"{nameof(channelType)} has to be a subclass of {nameof(RpcChannel<T>)} ");
+            Type channelType = typeof(TChannel);
             _cache.TryGetValue(channelType, out object instance);
             if(instance == null)
             {

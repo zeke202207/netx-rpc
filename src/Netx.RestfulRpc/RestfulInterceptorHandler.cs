@@ -116,7 +116,7 @@ namespace Netx.RestfulRpc
                 default:    
                 case RequestType.Post:
                     if (args.Count() > 0)
-                        response = client.PostAsync(apiRoute, new JsonContent(args[0].ToString()));
+                        response = client.PostAsync(apiRoute,System.Net.Http.Json.JsonContent.Create(args[0]));
                     else
                         response = client.PostAsync(apiRoute, null);
                     break;
